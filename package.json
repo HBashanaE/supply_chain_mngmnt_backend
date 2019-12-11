@@ -1,0 +1,18 @@
+{
+  "name": "supply_chain_mngmnt",
+  "version": "1.0.0",
+  "description": "Supply chain management system - Database Systems project - SEMESTER 4",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "npx nodemon server/server.js - w server",
+    "start": "node index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
+    "mysql": "^2.17.1"
+  }
+}
