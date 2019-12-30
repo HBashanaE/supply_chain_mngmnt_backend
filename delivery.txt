@@ -1,0 +1,198 @@
+CREATE TABLE Store(  
+store_id VARCHAR(255) NOT NULL,  
+city VARCHAR(20) NOT NULL,  
+street_name VARCHAR(60) NOT NULL, 
+number VARCHAR(20) NOT NULL, 
+capacity INT NOT NULL,   
+PRIMARY KEY ( store_id ));
+
+
+
+CREATE TABLE Train_trip(  
+train_trip_id VARCHAR(255) NOT NULL,   
+arrival_time_to_kandy TIME,
+allocated_capacity INT NOT NULL,   
+PRIMARY KEY ( train_trip_id ));
+
+
+
+CREATE TABLE Train_trip_city(  
+city_id VARCHAR(255) NOT NULL,  
+city VARCHAR(20) NOT NULL, 
+train_trip_id VARCHAR(255) NOT NULL, 
+PRIMARY KEY ( city_id ),
+FOREIGN KEY (train_trip_id) REFERENCES Train_trip(train_trip_id));
+
+
+CREATE TABLE Truck(  
+truck_id VARCHAR(255) NOT NULL, 
+reg_no varchar(60) NOT NULL,  
+store_id VARCHAR(255) NOT NULL,
+PRIMARY KEY ( truck_id ),  
+FOREIGN KEY (store_id) REFERENCES Store(store_id));
+
+
+CREATE TABLE Truck_route(  
+truck_route_id VARCHAR(255) NOT NULL,   
+maximum_time TIME,
+store_id VARCHAR(255) NOT NULL,
+PRIMARY KEY ( truck_route_id ),  
+FOREIGN KEY (store_id) REFERENCES Store(store_id));
+
+
+
+CREATE TABLE Truck_route_intermediate_point(  
+point_id VARCHAR(255) NOT NULL,  
+point VARCHAR(30) NOT NULL, 
+truck_route_id VARCHAR(255) NOT NULL,
+PRIMARY KEY ( point_id ),
+FOREIGN KEY (truck_route_id) REFERENCES Truck_route(truck_route_id));
+
+
+
+CREATE TABLE Product(  
+product_id VARCHAR(255) NOT NULL,  
+product_name VARCHAR(60) NOT NULL, 
+brand VARCHAR(20) NOT NULL, 
+capacity_consumption INT NOT NULL, 
+unit_price DECIMAL(8,2) NOT NULL,   
+PRIMARY KEY ( product_id ));
+
+
+CREATE TABLE Person( 
+NIC_No VARCHAR(12) NOT NULL,  
+first_name VARCHAR(50) NOT NULL,
+last_name VARCHAR(50) NOT NULL, 
+city VARCHAR(20) NOT NULL,  
+street_name VARCHAR(60) NOT NULL, 
+number VARCHAR(20) NOT NULL,
+is_active TINYINT(1) NOT NULL, 
+PRIMARY KEY ( NIC_No ));
+
+
+CREATE TABLE Contact_no( 
+contact_no varchar(15) NOT NULL, 
+NIC_No VARCHAR(12) NOT NULL,
+PRIMARY KEY ( contact_no, NIC_No ),
+FOREIGN KEY (NIC_No) REFERENCES Person(NIC_No));
+
+
+CREATE TABLE Users(  
+NIC_No VARCHAR(12) NOT NULL,
+user_name varchar(20) NOT NULL, 
+password varchar(255) NOT NULL,
+PRIMARY KEY ( NIC_No),
+FOREIGN KEY (NIC_No) REFERENCES Person(NIC_No));
+
+CREATE TABLE Admin(  
+user_name varchar(20) NOT NULL, 
+PRIMARY KEY ( user_name ),
+FOREIGN KEY (user_name) REFERENCES Users(user_name));
+
+CREATE TABLE Store_keeper(  
+user_name varchar(20) NOT NULL,
+store_id VARCHAR(255) NOT NULL,  
+PRIMARY KEY ( user_name ),
+FOREIGN KEY (store_id) REFERENCES Store(store_id),
+FOREIGN KEY (user_name) REFERENCES Users(user_name));
+
+CREATE TABLE Customer(  
+user_name varchar(20) NOT NULL, 
+PRIMARY KEY ( user_name ),
+FOREIGN KEY (user_name) REFERENCES Users(user_name));
+
+CREATE TABLE Whole_saler(  
+user_name varchar(20) NOT NULL,  
+PRIMARY KEY ( user_name ),
+FOREIGN KEY (user_name) REFERENCES Customer(user_name));
+
+CREATE TABLE Retailer(  
+user_name varchar(20) NOT NULL,  
+PRIMARY KEY ( user_name ),
+FOREIGN KEY (user_name) REFERENCES Customer(user_name));
+
+CREATE TABLE End_customer(  
+user_name varchar(20) NOT NULL,  
+PRIMARY KEY ( user_name ),
+FOREIGN KEY (user_name) REFERENCES Customer(user_name));
+
+CREATE TABLE Worker(  
+NIC_No VARCHAR(12) NOT NULL,
+store_id VARCHAR(255) NOT NULL, 
+PRIMARY KEY ( NIC_No ),
+FOREIGN KEY (store_id) REFERENCES Store(store_id),
+FOREIGN KEY (NIC_No) REFERENCES Person(NIC_No));
+
+CREATE TABLE Driver( 
+NIC_No VARCHAR(12) NOT NULL,
+PRIMARY KEY ( NIC_No ),
+FOREIGN KEY (NIC_No) REFERENCES Worker(NIC_No));
+
+CREATE TABLE Assistant(  
+NIC_No VARCHAR(12) NOT NULL,
+PRIMARY KEY ( NIC_No ),
+FOREIGN KEY (NIC_No) REFERENCES Worker(NIC_No));
+
+
+CREATE TABLE Truck_trip(  
+truck_trip_id VARCHAR(255) NOT NULL,  
+trip_date DATE, 
+start_time TIME,
+end_time TIME,
+driver_id VARCHAR(255) NOT NULL,  
+assistant_id VARCHAR(255) NOT NULL,
+truck_id VARCHAR(255) NOT NULL,
+truck_route_id VARCHAR(255) NOT NULL,  
+PRIMARY KEY ( truck_trip_id ),
+FOREIGN KEY (driver_id) REFERENCES Driver(driver_id),
+FOREIGN KEY (assistant_id) REFERENCES Assistant(assistant_id),
+FOREIGN KEY (truck_id) REFERENCES Truck(truck_id),
+FOREIGN KEY (truck_route_id) REFERENCES Truck_route(truck_route_id));
+
+CREATE TABLE Orders(
+order_id VARCHAR(255) NOT NULL,  
+ordered_date DATE, 
+order_description VARCHAR(100),
+total_price DECIMAL(10,2) NOT NULL,
+total_capacity_consumption INT NOT NULL,
+truck_route_id VARCHAR(255) NOT NULL,
+customer_id VARCHAR(255) NOT NULL,
+PRIMARY KEY ( order_id ),
+FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
+FOREIGN KEY (truck_route_id) REFERENCES Truck_route(truck_route_id));
+
+CREATE TABLE Item(  
+item_id VARCHAR(255) NOT NULL,  
+product_id VARCHAR(255) NOT NULL,
+order_id VARCHAR(255) NOT NULL,
+item_description VARCHAR(100),
+PRIMARY KEY ( item_id ),
+FOREIGN KEY (product_id) REFERENCES Product(product_id),
+FOREIGN KEY (order_id) REFERENCES Orders(order_id));
+
+CREATE TABLE Approved_order(  
+approved_order_id VARCHAR(255) NOT NULL,  
+order_id VARCHAR(255) NOT NULL,
+admin_id VARCHAR(255) NOT NULL,
+PRIMARY KEY ( approved_order_id ),
+FOREIGN KEY (admin_id) REFERENCES Admin(admin_id),
+FOREIGN KEY (order_id) REFERENCES Orders(order_id));
+
+CREATE TABLE Train_schedule(
+train_schedule_id VARCHAR(255) NOT NULL,  
+approved_order_id VARCHAR(255) NOT NULL, 
+train_trip_id VARCHAR(255) NOT NULL,  
+arrival_time_to_destination TIME,
+PRIMARY KEY ( train_schedule_id  ),
+FOREIGN KEY (approved_order_id) REFERENCES Approved_order(approved_order_id),
+FOREIGN KEY (train_trip_id) REFERENCES Train_trip(train_trip_id));
+
+CREATE TABLE Delivered_order(  
+delivered_order_id VARCHAR(255) NOT NULL,  
+approved_order_id VARCHAR(255) NOT NULL,
+truck_trip_id VARCHAR(255) NOT NULL,
+PRIMARY KEY ( approved_order_id ),
+FOREIGN KEY (approved_order_id) REFERENCES Approved_order(approved_order_id),
+FOREIGN KEY (truck_trip_id) REFERENCES Truck_trip(truck_trip_id));
+ 
+ 
