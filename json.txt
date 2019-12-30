@@ -1,0 +1,11 @@
+{
+    "nic" : "987451234V",
+    "firstName" : "Test",
+    "lastName" : "User",
+    "city" : "TestCity",
+    "streetname" : "TestStreet",
+    "streetNumber" : "123",
+    "isActive" : "1",
+    "username" : "testUser",
+    "password" : "testPW"
+}

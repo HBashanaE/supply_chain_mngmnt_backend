@@ -7,13 +7,13 @@ const User = require('../models/user');
 
 const router = express.Router();
 
-router.get('/test',userController.test);
+router.post('/test',userController.test);
 
 router.post('/register', 
 [
     body('username')
     .trim()
-    .isLength({min: 5})
+    .isLength({min: 5})                 
     .custom((value, {req} ) => {
         return User.findByUsername(value)
         .then(([row]) => {

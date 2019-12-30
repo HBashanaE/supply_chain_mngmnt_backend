@@ -13,11 +13,11 @@ module.exports = class User {
     }
 
     static findOne(field, value) {
-        return db.query('SELECT * FROM user WHERE ?? = ?;', [field, value]);
+        return db.query('SELECT * FROM person NATURAL JOIN users WHERE ?? = ?;', [field, value]);
     }
 
     static findByUsername(username) {
-        return db.execute('SELECT * FROM user WHERE user_id = ?;', [username]);
+        return db.execute('SELECT * FROM person NATURAL JOIN users WHERE user_name = ?;', [username]);
     }
 
     save() {

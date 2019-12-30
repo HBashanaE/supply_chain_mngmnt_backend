@@ -1,11 +1,16 @@
+CREATE TABLE City(
+city_id VARCHAR(20) PRIMARY KEY,
+city VARCHAR(255),  
+);
+
 CREATE TABLE Store(  
 store_id VARCHAR(255) NOT NULL,  
-city VARCHAR(20) NOT NULL,  
+city_id VARCHAR(20) NOT NULL,  
 street_name VARCHAR(60) NOT NULL, 
 number VARCHAR(20) NOT NULL, 
 capacity INT NOT NULL,   
-PRIMARY KEY ( store_id ));
-
+PRIMARY KEY ( store_id )
+FOREIGN KEY (city_id) REFERENCES City(city_id));
 
 
 CREATE TABLE Train_trip(  
@@ -15,10 +20,8 @@ allocated_capacity INT NOT NULL,
 PRIMARY KEY ( train_trip_id ));
 
 
-
 CREATE TABLE Train_trip_city(  
-city_id VARCHAR(255) NOT NULL,  
-city VARCHAR(20) NOT NULL, 
+city_id VARCHAR(20) NOT NULL, 
 train_trip_id VARCHAR(255) NOT NULL, 
 PRIMARY KEY ( city_id ),
 FOREIGN KEY (train_trip_id) REFERENCES Train_trip(train_trip_id));
@@ -40,15 +43,12 @@ PRIMARY KEY ( truck_route_id ),
 FOREIGN KEY (store_id) REFERENCES Store(store_id));
 
 
-
 CREATE TABLE Truck_route_intermediate_point(  
 point_id VARCHAR(255) NOT NULL,  
 point VARCHAR(30) NOT NULL, 
 truck_route_id VARCHAR(255) NOT NULL,
 PRIMARY KEY ( point_id ),
 FOREIGN KEY (truck_route_id) REFERENCES Truck_route(truck_route_id));
-
-
 
 CREATE TABLE Product(  
 product_id VARCHAR(255) NOT NULL,  
@@ -151,7 +151,8 @@ FOREIGN KEY (truck_route_id) REFERENCES Truck_route(truck_route_id));
 
 CREATE TABLE Orders(
 order_id VARCHAR(255) NOT NULL,  
-ordered_date DATE, 
+ordered_date DATE,
+destination_city VARCHAR(255), 
 order_description VARCHAR(100),
 total_price DECIMAL(10,2) NOT NULL,
 total_capacity_consumption INT NOT NULL,
@@ -160,6 +161,7 @@ customer_id VARCHAR(255) NOT NULL,
 PRIMARY KEY ( order_id ),
 FOREIGN KEY (customer_id) REFERENCES Customer(customer_id),
 FOREIGN KEY (truck_route_id) REFERENCES Truck_route(truck_route_id));
+
 
 CREATE TABLE Item(  
 item_id VARCHAR(255) NOT NULL,  

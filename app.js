@@ -1,9 +1,5 @@
-const http = require('http');
-const fs = require('fs');
-
 const express = require('express');
 const bodyParser = require('body-parser');
-const cors = require('cors');
 
 const db = require('./util/database');
 
@@ -16,26 +12,14 @@ const productRoute = require('./routes/product');
 
 const errorController = require('./controllers/error');
 
-// db.execute('SELECT * FROM user')
-// .then(result => {
-//     console.log(result);
-// })
-// .catch(err => {
-//     console.log(err);
-// });
-
-// app.use(cors({credentials: true}));
-
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', '*');
     res.setHeader('Access-Control-Allow-Methods', '*');
     res.setHeader("Access-Control-Allow-Credentials", true);
-    res.setHeader("Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept");
+    res.setHeader("Access-Control-Allow-Headers","Origin, X-Requested-With, Content-Type, Accept, Authorization");
     next();
 });
 
-// app.use(bodyParser.raw);
-// app.use(bodyParser.urlencoded({extended: true}));
 app.use(bodyParser.json());
 
 app.use((erroe, req, res, next) => {
@@ -49,7 +33,6 @@ app.use((erroe, req, res, next) => {
 app.use(homeRoute);
 app.use(authRoute);
 app.use('/user', userRoute);
-// app.use('/product', productRoute);
 
 app.use(errorController.get404);
 

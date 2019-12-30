@@ -1,14 +1,15 @@
 const bcrypt = require('bcryptjs');
-const {validationResult} = require('express-validator');
+const jwt = require('jsonwebtoken');
+const { validationResult } = require('express-validator');
 
 const User = require('../models/user');
 
 
 exports.test = (req, res, next) => {
-    User.test()
-    .then(([row]) => {
-        console.log(row);
-    });
+    User.findOne(req.field, req.value)
+        .then(([row]) => {
+            console.log(row);
+        });
     res.send('ok');
 }
 
@@ -21,36 +22,55 @@ exports.signIn = (req, res, next) => {
     console.log(username);
     console.log(password);
 
+
     User.findByUsername(username)
         .then(([row]) => {
-            // console.log(row[0]['user_id']);
-            if(row[0]) {
-                DBuserID = row[0]['user_id'];
-                DBuserName = row[0]['user_id'];
-                DBpassword = row[0]['password'];
-                DBisActive = row[0]['user_id'];
-
-                if(password === DBpassword){
-                    //login
-                    //create toke and send to frontend
-                    res.send('<h1>This is what I got</h1>');
-                } else {
-                    console.log('login failed');
-                    res.send('login failed');
-                }
-            } else {
+            if (!row[0]) {
                 console.log('No user found');
-                res.send('No user found');
+                const error = new Error('No user with this username found');
+                error.statusCode = 401;
+                throw error;
             }
+            DBuserName = row[0]['user_name'];
+            DBfirstName = row[0]['first_name'];
+            DBlastName = row[0]['last_name'];
+            DBno = row[0]['number'];
+            DBstreet = row[0]['street_name'];
+            DBcity = row[0]['city'];
+            DBpassword = row[0]['password'];
+            DBisActive = row[0]['is_active'];
+            
+
+            return bcrypt.compare(password, DBpassword);
         })
-        .catch(err => console.log(err));
+        .then(isEqual => {
+            if (!isEqual) {
+                console.log('Password not correct');
+                const error = new Error('Password not correct');
+                error.statusCode = 401;
+                throw error;
+            }
+
+            const token = jwt.sign({ username: DBuserName, firstName: DBfirstName, lastName: DBlastName, number: DBno, street: DBstreet, city: DBcity },
+                'SECRETKEY$2y$12$usOeEojSn2e0rNZcUc1S0uL.LSCsQPlRtfv4Xzp20b/Eu86rlPRpm',
+                { expiresIn: '1h' }
+            );
+            res.status(200).json({token : token, username: DBuserName,  firstName: DBfirstName, lastName: DBlastName, number: DBno, street: DBstreet, city: DBcity})
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        })
+
 
 }
 
 exports.register = (req, res, next) => {
 
     const errors = validationResult(req);
-    if(!errors.isEmpty()) {
+    if (!errors.isEmpty()) {
         const error = new Error('Validation failed');
         error.statusCode = 422;
         error.data = errors.array();
@@ -62,27 +82,27 @@ exports.register = (req, res, next) => {
     const password = req.body.password;
 
     bcrypt.hash()
-    .then(hashedPW => {
-        user = new User(username, hashedPW, firstName, lastName);
-        user.save();
-    })
-    .catch(err => {
-        if(!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    });
+        .then(hashedPW => {
+            user = new User(username, hashedPW, firstName, lastName);
+            user.save();
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 
     //create database entry
 
     let created = true;
 
-    if(created == true) {
+    if (created == true) {
         res.status(201).json({
             message: "Registerd",
-            
+
         });
-    }else {
+    } else {
         res.status(200).json({
             message: "Registration unsuccessful"
         });
@@ -93,7 +113,7 @@ exports.register = (req, res, next) => {
 exports.registerWholeSeller = (req, res, next) => {
 
     const errors = validationResult(req);
-    if(!errors.isEmpty()) {
+    if (!errors.isEmpty()) {
         const error = new Error('Validation failed');
         error.statusCode = 422;
         error.data = errors.array();
@@ -105,16 +125,16 @@ exports.registerWholeSeller = (req, res, next) => {
     const password = req.body.password;
 
     bcrypt.hash()
-    .then(hashedPW => {
-        user = new User(username, hashedPW, firstName, lastName);
-        user.save();
-    })
-    .catch(err => {
-        if(!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    });
+        .then(hashedPW => {
+            user = new User(username, hashedPW, firstName, lastName);
+            user.save();
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 
     // create record in persons table
     // create record in user table
@@ -123,12 +143,12 @@ exports.registerWholeSeller = (req, res, next) => {
 
     let created = true;
 
-    if(created == true) {
+    if (created == true) {
         res.status(201).json({
             message: "Registerd",
-            
+
         });
-    }else {
+    } else {
         res.status(200).json({
             message: "Registration unsuccessful"
         });
@@ -139,7 +159,7 @@ exports.registerWholeSeller = (req, res, next) => {
 exports.registerRetailer = (req, res, next) => {
 
     const errors = validationResult(req);
-    if(!errors.isEmpty()) {
+    if (!errors.isEmpty()) {
         const error = new Error('Validation failed');
         error.statusCode = 422;
         error.data = errors.array();
@@ -159,12 +179,12 @@ exports.registerRetailer = (req, res, next) => {
 
     let created = true;
 
-    if(created == true) {
+    if (created == true) {
         res.status(201).json({
             message: "Registerd",
-            
+
         });
-    }else {
+    } else {
         res.status(200).json({
             message: "Registration unsuccessful"
         });
@@ -175,7 +195,7 @@ exports.registerRetailer = (req, res, next) => {
 exports.registerEndCustomer = (req, res, next) => {
 
     const errors = validationResult(req);
-    if(!errors.isEmpty()) {
+    if (!errors.isEmpty()) {
         const error = new Error('Validation failed');
         error.statusCode = 422;
         error.data = errors.array();
@@ -187,16 +207,16 @@ exports.registerEndCustomer = (req, res, next) => {
     const password = req.body.password;
 
     bcrypt.hash()
-    .then(hashedPW => {
-        user = new User(username, hashedPW, firstName, lastName);
-        user.save();
-    })
-    .catch(err => {
-        if(!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    });
+        .then(hashedPW => {
+            user = new User(username, hashedPW, firstName, lastName);
+            user.save();
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 
     // create record in persons table
     // create record in user table
@@ -205,12 +225,12 @@ exports.registerEndCustomer = (req, res, next) => {
 
     let created = true;
 
-    if(created == true) {
+    if (created == true) {
         res.status(201).json({
             message: "Registerd",
-            
+
         });
-    }else {
+    } else {
         res.status(200).json({
             message: "Registration unsuccessful"
         });
@@ -222,7 +242,7 @@ exports.registerEndCustomer = (req, res, next) => {
 exports.registerStoreKeeper = (req, res, next) => {
 
     const errors = validationResult(req);
-    if(!errors.isEmpty()) {
+    if (!errors.isEmpty()) {
         const error = new Error('Validation failed');
         error.statusCode = 422;
         error.data = errors.array();
@@ -234,16 +254,16 @@ exports.registerStoreKeeper = (req, res, next) => {
     const password = req.body.password;
 
     bcrypt.hash()
-    .then(hashedPW => {
-        user = new User(username, hashedPW, firstName, lastName);
-        user.save();
-    })
-    .catch(err => {
-        if(!err.statusCode) {
-            err.statusCode = 500;
-        }
-        next(err);
-    });
+        .then(hashedPW => {
+            user = new User(username, hashedPW, firstName, lastName);
+            user.save();
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
+        });
 
     // create record in persons table
     // create record in user table
@@ -251,12 +271,12 @@ exports.registerStoreKeeper = (req, res, next) => {
 
     let created = true;
 
-    if(created == true) {
+    if (created == true) {
         res.status(201).json({
             message: "Registerd",
-            
+
         });
-    }else {
+    } else {
         res.status(200).json({
             message: "Registration unsuccessful"
         });
