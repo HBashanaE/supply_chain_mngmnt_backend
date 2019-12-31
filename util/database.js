@@ -17,6 +17,7 @@ pool.getConnection((err, connection) =>{
     if (connection) {
         connection.release();
     }
+    console.log('Connected to the database');
     return;
 });
 

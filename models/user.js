@@ -20,23 +20,27 @@ module.exports = class User {
         return db.execute('SELECT * FROM person NATURAL JOIN users WHERE user_name = ?;', [username]);
     }
 
-    save() {
-        return db.query('INESERT INTO users VALUES(?, ?, ?, ?, ?, ?, ?)',
-            [this.username, this.password, this.firstName, this.lastName, this.streetNumber, this.streetName, this.city]);
-    }
-
     static test() {
         return db.query('SELECT * FROM ??; SELECT * FROM ??;', ['users', 'worker']);
     }
 
-    static saveRetailer(NIC, firstName, lastName, streetNumber, streetName, city, isActive, username, password) {
+    static saveRetailer(NIC, firstName, lastName, no, streetName, city, username, password, contactNo) {
+        return db.query('CALL saveRetailer(?, ?, ?, ?, ?, ?, ?, ?, ?);',[NIC, firstName, lastName, city, streetName, no, username, password, contactNo]);
+    }
 
-        db.beginTransaction((err) => {
-            db.query('INESERT INTO person VALUES(?, ?, ?, ?, ?, ?, ?);\
-            INESERT INTO users VALUES(?, ?, ?);',
-                [NIC, firstName, lastName, city, streetName, streetNumber, isActive], () => {
-                    db.commit(() => db.release())
-                })
-        });
+    static saveWholeseller(NIC, firstName, lastName, no, streetName, city, username, password, contactNo) {
+        return db.query('CALL saveWholeSeller(?, ?, ?, ?, ?, ?, ?, ?, ?);',[NIC, firstName, lastName, city, streetName, no, username, password, contactNo]);
+    }
+
+    static saveEndCustomer(NIC, firstName, lastName, no, streetName, city, username, password, contactNo) {
+        return db.query('CALL saveEndCustomer (?, ?, ?, ?, ?, ?, ?, ?, ?);',[NIC, firstName, lastName, city, streetName, no, username, password, contactNo]);
+    }
+
+    static saveStoreKeeper(NIC, firstName, lastName, no, streetName, city, username, password, contactNo, storeID) {
+        return db.query('CALL  saveStoreKeeper(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);',[NIC, firstName, lastName, city, streetName, no, username, password, contactNo, storeID]);
+    }
+
+    static getUserType(username) {
+        return db.query('SELECT userType(?);',[username]);
     }
 }

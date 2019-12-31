@@ -39,7 +39,16 @@ exports.signIn = (req, res, next) => {
             DBcity = row[0]['city'];
             DBpassword = row[0]['password'];
             DBisActive = row[0]['is_active'];
-            
+
+            // userType;
+
+            User.getUserType(username)
+                .then(([row]) => {
+                    let s = `userType('${username}')`;
+                    console.log(row[0][s]);
+                    return userType = row[0][s];
+                })
+
 
             return bcrypt.compare(password, DBpassword);
         })
@@ -55,16 +64,24 @@ exports.signIn = (req, res, next) => {
                 'SECRETKEY$2y$12$usOeEojSn2e0rNZcUc1S0uL.LSCsQPlRtfv4Xzp20b/Eu86rlPRpm',
                 { expiresIn: '1h' }
             );
-            res.status(200).json({token : token, username: DBuserName,  firstName: DBfirstName, lastName: DBlastName, number: DBno, street: DBstreet, city: DBcity})
+            res.status(200).json({
+                token: token,
+                username: DBuserName,
+                firstName: DBfirstName,
+                lastName: DBlastName,
+                number: DBno,
+                street: DBstreet,
+                city: DBcity,
+                userType: userType
+            });
         })
         .catch(err => {
+            console.log('Internal sever error');
             if (!err.statusCode) {
                 err.statusCode = 500;
             }
             next(err);
         })
-
-
 }
 
 exports.register = (req, res, next) => {
@@ -119,15 +136,27 @@ exports.registerWholeSeller = (req, res, next) => {
         error.data = errors.array();
         throw error;
     }
-    const useranme = req.body.username;
-    const firstName = req.body.firstname;
+    const nic = req.body.nic;
+    const firstName = req.body.firstName;
     const lastName = req.body.lastName;
+    const city = req.body.city;
+    const streetName = req.body.streetName;
+    const no = req.body.no;
+    const useranme = req.body.username;
     const password = req.body.password;
+    const contactNo = req.body.contactNo;
 
-    bcrypt.hash()
+    bcrypt.hash(password, 12)
         .then(hashedPW => {
-            user = new User(username, hashedPW, firstName, lastName);
-            user.save();
+            return User.saveWholeseller(nic, firstName, lastName, no, streetName, city, useranme, hashedPW, contactNo);
+        })
+        .then(result => {
+            const token = jwt.sign({ username: useranme, firstName: firstName, lastName: lastName, number: no, street: streetName, city: city },
+                'SECRETKEY$2y$12$usOeEojSn2e0rNZcUc1S0uL.LSCsQPlRtfv4Xzp20b/Eu86rlPRpm',
+                { expiresIn: '1h' }
+            );
+            res.status(201).json({ message: "User registered succesfully", token: token, username: useranme, firstName: firstName, lastName: lastName, number: no, street: streetName, city: city, userType: "W" });
+            console.log(result);
         })
         .catch(err => {
             if (!err.statusCode) {
@@ -135,25 +164,6 @@ exports.registerWholeSeller = (req, res, next) => {
             }
             next(err);
         });
-
-    // create record in persons table
-    // create record in user table
-    // create rexord in customer table 
-    // create record in wholeseller table
-
-    let created = true;
-
-    if (created == true) {
-        res.status(201).json({
-            message: "Registerd",
-
-        });
-    } else {
-        res.status(200).json({
-            message: "Registration unsuccessful"
-        });
-    }
-
 }
 
 exports.registerRetailer = (req, res, next) => {
@@ -165,30 +175,33 @@ exports.registerRetailer = (req, res, next) => {
         error.data = errors.array();
         throw error;
     }
-    const NIC = req.body.nic;
-    const firstName = req.body.firstname;
+    const nic = req.body.nic;
+    const firstName = req.body.firstName;
     const lastName = req.body.lastName;
     const city = req.body.city;
     const streetName = req.body.streetName;
-    const streetNumber = req.body.streetNumber;
-    const isActive = req.body.isActive;
-    const username = req.body.username;
+    const no = req.body.no;
+    const useranme = req.body.username;
     const password = req.body.password;
+    const contactNo = req.body.contactNo;
 
-    User.saveRetailer(NIC, firstName, lastName, streetNumber, streetName, city, isActive, username, password);
-
-    let created = true;
-
-    if (created == true) {
-        res.status(201).json({
-            message: "Registerd",
-
+    bcrypt.hash(password, 12)
+        .then(hashedPW => {
+            return User.saveRetailer(nic, firstName, lastName, no, streetName, city, useranme, hashedPW, contactNo);
+        })
+        .then(result => {
+            const token = jwt.sign({ username: useranme, firstName: firstName, lastName: lastName, number: no, street: streetName, city: city },
+                'SECRETKEY$2y$12$usOeEojSn2e0rNZcUc1S0uL.LSCsQPlRtfv4Xzp20b/Eu86rlPRpm',
+                { expiresIn: '1h' }
+            );
+            res.status(201).json({ message: "User registered succesfully", token: token, username: useranme, firstName: firstName, lastName: lastName, number: no, street: streetName, city: city, userType: "R" });
+        })
+        .catch(err => {
+            if (!err.statusCode) {
+                err.statusCode = 500;
+            }
+            next(err);
         });
-    } else {
-        res.status(200).json({
-            message: "Registration unsuccessful"
-        });
-    }
 
 }
 
@@ -201,15 +214,35 @@ exports.registerEndCustomer = (req, res, next) => {
         error.data = errors.array();
         throw error;
     }
-    const useranme = req.body.username;
-    const firstName = req.body.firstname;
+    const nic = req.body.nic;
+    const firstName = req.body.firstName;
     const lastName = req.body.lastName;
+    const city = req.body.city;
+    const streetName = req.body.streetName;
+    const no = req.body.no;
+    const useranme = req.body.username;
     const password = req.body.password;
+    const contactNo = req.body.contactNo;
 
-    bcrypt.hash()
+    bcrypt.hash(password, 12)
         .then(hashedPW => {
-            user = new User(username, hashedPW, firstName, lastName);
-            user.save();
+            return User.saveEndCustomer(nic, firstName, lastName, no, streetName, city, useranme, hashedPW, contactNo);
+        })
+        .then(result => {
+            const token = jwt.sign({ username: useranme, firstName: firstName, lastName: lastName, number: no, street: streetName, city: city },
+                'SECRETKEY$2y$12$usOeEojSn2e0rNZcUc1S0uL.LSCsQPlRtfv4Xzp20b/Eu86rlPRpm',
+                { expiresIn: '1h' }
+            );
+            res.status(201).json({ 
+                message: "User registered succesfully", 
+                token: token, 
+                username: useranme, 
+                firstName: firstName, 
+                lastName: lastName, 
+                number: no, street: 
+                streetName, 
+                city: city, 
+                userType: "E" });
         })
         .catch(err => {
             if (!err.statusCode) {
@@ -218,23 +251,6 @@ exports.registerEndCustomer = (req, res, next) => {
             next(err);
         });
 
-    // create record in persons table
-    // create record in user table
-    // create rexord in customer table 
-    // create record in endcustomer table
-
-    let created = true;
-
-    if (created == true) {
-        res.status(201).json({
-            message: "Registerd",
-
-        });
-    } else {
-        res.status(200).json({
-            message: "Registration unsuccessful"
-        });
-    }
 
 }
 
@@ -248,15 +264,43 @@ exports.registerStoreKeeper = (req, res, next) => {
         error.data = errors.array();
         throw error;
     }
-    const useranme = req.body.username;
-    const firstName = req.body.firstname;
+    const nic = req.body.nic;
+    const firstName = req.body.firstName;
     const lastName = req.body.lastName;
+    const city = req.body.city;
+    const streetName = req.body.streetName;
+    const no = req.body.no;
+    const useranme = req.body.username;
     const password = req.body.password;
+    const contactNo = req.body.contactNo;
+    const storeID = req.body.storeID;
 
-    bcrypt.hash()
+    bcrypt.hash(password, 12)
         .then(hashedPW => {
-            user = new User(username, hashedPW, firstName, lastName);
-            user.save();
+            return User.saveStoreKeeper(nic, firstName, lastName, no, streetName, city, useranme, hashedPW, contactNo, storeID);
+        })
+        .then(result => {
+            const token = jwt.sign({
+                username: useranme,
+                firstName: firstName,
+                lastName: lastName,
+                number: no,
+                street: streetName,
+                city: city
+            },
+                'SECRETKEY$2y$12$usOeEojSn2e0rNZcUc1S0uL.LSCsQPlRtfv4Xzp20b/Eu86rlPRpm',
+                { expiresIn: '1h' }
+            );
+            res.status(201).json({
+                message: "User registered succesfully",
+                token: token, username: useranme,
+                firstName: firstName,
+                lastName: lastName,
+                number: no,
+                street: streetName,
+                city: city,
+                userType: "S"
+            });
         })
         .catch(err => {
             if (!err.statusCode) {
@@ -264,23 +308,6 @@ exports.registerStoreKeeper = (req, res, next) => {
             }
             next(err);
         });
-
-    // create record in persons table
-    // create record in user table
-    // create rexord in storekeeper table
-
-    let created = true;
-
-    if (created == true) {
-        res.status(201).json({
-            message: "Registerd",
-
-        });
-    } else {
-        res.status(200).json({
-            message: "Registration unsuccessful"
-        });
-    }
 
 }
 

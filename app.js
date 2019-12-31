@@ -5,10 +5,7 @@ const db = require('./util/database');
 
 const app = express();
 
-const homeRoute = require('./routes/home');
-const authRoute = require('./routes/auth');
 const userRoute = require('./routes/user');
-const productRoute = require('./routes/product');
 
 const errorController = require('./controllers/error');
 
@@ -30,8 +27,6 @@ app.use((erroe, req, res, next) => {
     res.status(status).json({message: message, data: data});
 })
 
-app.use(homeRoute);
-app.use(authRoute);
 app.use('/user', userRoute);
 
 app.use(errorController.get404);
