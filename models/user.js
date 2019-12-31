@@ -2,16 +2,6 @@ const db = require('../util/database');
 
 module.exports = class User {
 
-    constructor(username, password, firstname, lastName) {
-        this.username = username;
-        this.password = password;
-        this.firstName = firstName;
-        this.lastName = lastName;
-        this.streetNumber = streetNumber;
-        this.streetName = streetName;
-        this.city = city;
-    }
-
     static findOne(field, value) {
         return db.query('SELECT * FROM person NATURAL JOIN users WHERE ?? = ?;', [field, value]);
     }
