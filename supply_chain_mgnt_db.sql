@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1:3308
--- Generation Time: Dec 31, 2019 at 12:44 PM
+-- Generation Time: Dec 31, 2019 at 01:44 PM
 -- Server version: 5.7.26
 -- PHP Version: 7.3.5
 
@@ -180,7 +180,10 @@ INSERT INTO `contact_no` (`contact_no`, `NIC_No`) VALUES
 ('01223114', '984561225V'),
 ('0710740848', '895462134V'),
 ('0710740848', '895462135V'),
-('0710740848', '987451234V');
+('0710740848', '987451234V'),
+('0712245698', '5644851275V'),
+('081245698', '65215423655V'),
+('0812546985', '701254515V');
 
 -- --------------------------------------------------------
 
@@ -231,6 +234,13 @@ CREATE TABLE IF NOT EXISTS `driver` (
   `NIC_No` varchar(12) NOT NULL,
   PRIMARY KEY (`NIC_No`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `driver`
+--
+
+INSERT INTO `driver` (`NIC_No`) VALUES
+('701254515V');
 
 -- --------------------------------------------------------
 
@@ -315,7 +325,10 @@ INSERT INTO `person` (`NIC_No`, `first_name`, `last_name`, `city`, `street_name`
 ('984561225V', 'TestF', 'TestL', 'TestCity', 'TestStreet', '213', 1),
 ('987451234V', 'Test', 'User', 'TestCity', 'TestStreet', '123', 1),
 ('895462135V', 'Test', 'User', 'TestCity', 'TestStreet', '123', 1),
-('895462134V', 'Test', 'User', 'TestCity', 'TestStreet', '123', 1);
+('895462134V', 'Test', 'User', 'TestCity', 'TestStreet', '123', 1),
+('701254515V', 'Driver1', 'D', 'Katugasthota', 'Flower lane', '12', 1),
+('65215423655V', 'Nimal', 'Karunapala', 'Asgiriya', 'Raja av', '45', 1),
+('5644851275V', 'Sunil', 'Samarakoon', 'Ukuwela', 'AnyName', '00', 1);
 
 -- --------------------------------------------------------
 
@@ -368,6 +381,14 @@ CREATE TABLE IF NOT EXISTS `store` (
   PRIMARY KEY (`store_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
+--
+-- Dumping data for table `store`
+--
+
+INSERT INTO `store` (`store_id`, `city`, `street_name`, `number`, `capacity`) VALUES
+('0000', 'KANDY', 'Cross st', 'No 14', 100000),
+('0001', 'MATALE', 'King st', 'No 193/2', 10000);
+
 -- --------------------------------------------------------
 
 --
@@ -381,6 +402,14 @@ CREATE TABLE IF NOT EXISTS `store_keeper` (
   PRIMARY KEY (`user_name`),
   KEY `store_id` (`store_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `store_keeper`
+--
+
+INSERT INTO `store_keeper` (`user_name`, `store_id`) VALUES
+('nimalK', '0000'),
+('SunilS', '0001');
 
 -- --------------------------------------------------------
 
@@ -454,7 +483,7 @@ CREATE TABLE IF NOT EXISTS `truck_route` (
   `truck_route_id` varchar(255) NOT NULL,
   `maximum_time` time DEFAULT NULL,
   `store_id` varchar(255) NOT NULL,
-  PRIMARY KEY (`truck_route_id`),
+  PRIMARY KEY (`truck_route_id`,`store_id`),
   KEY `store_id` (`store_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
@@ -519,7 +548,9 @@ INSERT INTO `users` (`NIC_No`, `user_name`, `password`) VALUES
 ('984561225V', 'TestTest', 'tees'),
 ('987451234V', 'asdfg', '$2a$12$sERopLlVeVlox8UB5OEmEeHkHfNI3H5hYBkMs8AUme.CtAtVqd9fe'),
 ('895462135V', 'ttttLSJBYKJ', '$2a$12$3VVRybEKlnjljF/E7Jjg0uTdUll0BIcC1cTByF0POGggPKcPdCfwS'),
-('895462134V', 'ttttLSJvYKJ', '$2a$12$Y/LGFyjkydR9/yDso7hG3e8vFzhM0tDcP2AhyA46uzhalMm9zB9Ly');
+('895462134V', 'ttttLSJvYKJ', '$2a$12$Y/LGFyjkydR9/yDso7hG3e8vFzhM0tDcP2AhyA46uzhalMm9zB9Ly'),
+('65215423655V', 'nimalK', '$2y$12$bywlRL30lHjYgaz0jLQuvO45Vc8bu9vdGHYU3w7YSXcc7WYvvj.Rq'),
+('5644851275V', 'SunilS', '$2y$12$bywlRL30lHjYgaz0jLQuvO45Vc8bu9vdGHYU3w7YSXcc7WYvvj.Rq');
 
 -- --------------------------------------------------------
 
@@ -555,6 +586,13 @@ CREATE TABLE IF NOT EXISTS `worker` (
   PRIMARY KEY (`NIC_No`),
   KEY `store_id` (`store_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `worker`
+--
+
+INSERT INTO `worker` (`NIC_No`, `store_id`) VALUES
+('701254515V', '0000');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
